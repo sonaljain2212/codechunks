@@ -62,7 +62,47 @@ df.info()
 # In[ ]:
 
 
+def performDowncast(df):
 
+  """
+  Function tpo apply downcasting 
+  
+  Input: A dataframe 
+
+  Output: Dataframe with reduced memory usage
+  
+  
+  """
+  cols = df.dtypes.index.tolist()
+  types = df.dtypes.values.tolist()
+
+  for idx,dtype in enumerate(types):
+
+      if 'int' in str(dtype):  # Downcasting for Int type variables
+          if df[cols[idx]].min() > np.iinfo(np.int8).min and df[cols[idx]].max() < np.iinfo(np.int8).max:
+              df[cols[idx]] = df[cols[idx]].astype(np.int8) # Downsize to int8
+          elif df[cols[idx]].min() > np.iinfo(np.int16).min and df[cols[idx]].max() < np.iinfo(np.int16).max:
+              df[cols[idx]] = df[cols[idx]].astype(np.int16) # Downsize to int16
+          elif df[cols[idx]].min() > np.iinfo(np.int32).min and df[cols[idx]].max() < np.iinfo(np.int32).max:
+              df[cols[idx]] = df[cols[idx]].astype(np.int32) # Downsize to int32
+          else:
+              df[cols[idx]] = df[cols[idx]].astype(np.int64) # Downsize as int64
+
+      elif 'float' in str(dtype): # Downcasting for Float type variables
+          if df[cols[idx]].min() > np.finfo(np.float16).min and df[cols[idx]].max() < np.finfo(np.float16).max:
+              df[cols[idx]] = df[cols[idx]].astype(np.float16) # Downsize to float16
+          elif df[cols[idx]].min() > np.finfo(np.float32).min and df[cols[idx]].max() < np.finfo(np.float32).max:
+              df[cols[idx]] = df[cols[idx]].astype(np.float32) # Downsize to float32
+          else:
+              df[cols[idx]] = df[cols[idx]].astype(np.float64) # Downsize to float64
+
+      elif dtype == np.object: # By default strings are treated as objects
+          if cols[idx] == 'date':
+              df[cols[idx]] = pd.to_datetime(df[cols[idx]], format='%Y-%m-%d')
+          # else:
+          #     df[cols[idx]] = df[cols[idx]].astype('category')
+
+  return df
 
 
 # # Get correlation values sorted
